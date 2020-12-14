@@ -1,18 +1,8 @@
+import {useState} from 'react';
 import { useQuery, gql } from '@apollo/client';
-import CusinesFilter from "./CusinesFilter";
 
-const RECIPES = gql`
-    query {
-      recipes {
-        _id
-        name
-        ingredients {
-          name
-          amount
-        }
-      }
-    }
-`;
+import CusinesFilter from "./CusinesFilter";
+import RecipesDisplay from "./RecipesDisplay";
 
 const CUISINES = gql`
     query {
@@ -24,26 +14,18 @@ const CUISINES = gql`
 `;
 
 function Recipes() {
-    const {loading: recipesLoading, error: recipesError, data: recipesData} = useQuery(RECIPES);
+    const [cuisine, setCuisine] = useState("");
+
     const {loading: cuisinesLoading, error: cuisinesError, data: cuisinesData} = useQuery(CUISINES);
 
-
-    if (recipesLoading || cuisinesLoading) return <p>Loading...</p>
-    if (recipesError || cuisinesError) return <p>Error:(</p>
-
-    const recipes = recipesData.recipes.map((item) => {
-        return (
-            <div key={item._id}>
-            <p>{item.name}</p>
-        </div>
-        );
-    });
+    if (cuisinesLoading) return <p>Loading...</p>
+    if (cuisinesError) return <p>Error: {cuisinesError}</p>
 
     return (
         <div>
-            <CusinesFilter cuisines={ cuisinesData }/>
+            <CusinesFilter cuisines={ cuisinesData } setCuisineFilter={setCuisine}/>
             <div className="container">
-                {recipes}
+                <RecipesDisplay cuisine={cuisine} />
             </div>
         </div>
     )
